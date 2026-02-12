@@ -28,6 +28,14 @@ public class IndividualInrolledPrograms extends HttpServlet {
             String requestIndividualId = request.getParameter("userId");
 
 
+            boolean check=false;
+
+
+            if (requestIndividualId == null || requestIndividualId.isEmpty()) {
+                response.setStatus(400);
+                response.getWriter().write("userId parameter required");
+                return;
+            }
             if (GlobalData.Data == null) {
                 response.setStatus(400);
                 response.getWriter().write("Data not initialized");
@@ -61,10 +69,19 @@ public class IndividualInrolledPrograms extends HttpServlet {
 
                             //  add program name (requirement)
                             endividualsName.add(programs.getProgramName());
+                            check=true;
                             break; // avoid duplicates from same program
+
+
                         }
                     }
                 }
+            }
+            if(!check)
+            {
+                response.setStatus(400);
+                response.getWriter().write("Wrong UserId");
+                return ;
             }
 
             Gson gson = new Gson();

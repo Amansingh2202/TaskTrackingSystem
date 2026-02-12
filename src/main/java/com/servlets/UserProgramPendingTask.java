@@ -37,6 +37,7 @@ public class UserProgramPendingTask extends HttpServlet {
                 response.getWriter().write("Data not initialized");
                 return;
             }
+            boolean check=false;
 
             List<Tasks> resultTasks = new ArrayList<>();
 
@@ -64,11 +65,18 @@ public class UserProgramPendingTask extends HttpServlet {
 
                         if (requestUserId.equals(task.getOwnerId())
                                 && "PENDING".equalsIgnoreCase(task.getStatus())) {
+                            check=true;
 
                             resultTasks.add(task);
                         }
                     }
                 }
+            }
+            if(!check)
+            {
+                response.setStatus(400);
+                response.getWriter().write("Wrong UserId or programName");
+                return ;
             }
             Gson gson=new Gson();
             response.setStatus(200);

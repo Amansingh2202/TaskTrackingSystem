@@ -34,6 +34,7 @@ public class ProgramByProject extends HttpServlet {
                 response.getWriter().write("Data not initialized");
                 return;
             }
+            boolean check=false;
 
             String foundProgramName = null;
 
@@ -51,12 +52,20 @@ public class ProgramByProject extends HttpServlet {
 
                     if (requestProjectName.equals(projects.getProjectName())) {
                         foundProgramName = programs.getProgramName();
+                        check=true;
                         break;
                     }
                 }
 
-                if (foundProgramName != null) break;
+
             }
+            if(!check)
+            {
+                response.setStatus(400);
+                response.getWriter().write("Wrong programName");
+                return ;
+            }
+
 
             Gson gson = new Gson();
 

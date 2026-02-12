@@ -38,6 +38,8 @@ public class IndividualInrolledProject extends HttpServlet {
                 return;
             }
 
+            boolean check=false;
+
             ProgramsBaseFile data = GlobalData.Data;
 
             List<String> ansProjectList = new ArrayList<>();
@@ -64,10 +66,17 @@ public class IndividualInrolledProject extends HttpServlet {
                                 enrolledIndividuals.getUserId())) {
 
                             ansProjectList.add(projects.getProjectName());
+                            check=true;
                             break;
                         }
                     }
                 }
+            }
+            if(!check)
+            {
+                response.setStatus(400);
+                response.getWriter().write("Wrong UserId");
+                return ;
             }
 
             Gson gson = new Gson();

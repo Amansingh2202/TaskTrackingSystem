@@ -33,6 +33,7 @@ public class IndividualPendingTask extends HttpServlet {
                 response.getWriter().write("Data not initialized");
                 return;
             }
+            boolean check=false;
 
             List<Tasks> pendingTasks = new ArrayList<>();
 
@@ -53,17 +54,23 @@ public class IndividualPendingTask extends HttpServlet {
 
                         Tasks task = taskList.get(k);
 
-                        // ✅ business logic change only
+
                         if (requestUserId.equals(task.getOwnerId())
                                 && "PENDING".equalsIgnoreCase(task.getStatus())) {
 
                             pendingTasks.add(task);
+                            check=true;
                         }
                     }
                 }
             }
 
-
+            if(!check)
+            {
+                response.setStatus(400);
+                response.getWriter().write("Wrong UserId");
+                return ;
+            }
 
             Gson gson = new Gson();
             response.setStatus(200);

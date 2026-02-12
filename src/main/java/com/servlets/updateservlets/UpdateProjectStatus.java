@@ -1,33 +1,36 @@
-package com.servlets;
+package com.servlets.updateservlets;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.pojo.Programs;
 import com.pojo.ProgramsBaseFile;
 import com.pojo.Projects;
 import com.pojo.Tasks;
+import com.util.DataSaver;
 import com.util.GlobalData;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-@WebServlet("/projectPendingTasks")
-public class ProjectPendingTask extends HttpServlet {
+@WebServlet("/updateTaskStatus")
+public class UpdateProjectStatus  extends HttpServlet {
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
 
         try {
 
-            String requestProjectName = request.getParameter("projectName");
+            String taskId = request.getParameter("taskId");
+            String newStatus = request.getParameter("status");
 
-            if (requestProjectName == null || requestProjectName.isEmpty()) {
+            if (taskId == null || newStatus == null) {
                 response.setStatus(400);
-                response.getWriter().write("projectName parameter required");
+                response.getWriter().write("taskId and status required");
                 return;
             }
 
@@ -37,9 +40,7 @@ public class ProjectPendingTask extends HttpServlet {
                 return;
             }
 
-            boolean check=false;
-
-            List<Tasks> resultTasks = new ArrayList<>();
+            boolean check = false;
 
             ProgramsBaseFile data = GlobalData.Data;
             List<Programs> programsList = data.getPrograms();
@@ -52,41 +53,36 @@ public class ProjectPendingTask extends HttpServlet {
                 for (int j = 0; j < projectsList.size(); j++) {
 
                     Projects projects = projectsList.get(j);
-
-
-                    if (!requestProjectName.equals(projects.getProjectName())) {
-                        continue;
-                    }
-
                     List<Tasks> taskList = projects.getTasks();
 
                     for (int k = 0; k < taskList.size(); k++) {
 
                         Tasks task = taskList.get(k);
 
-                        if ("PENDING".equalsIgnoreCase(task.getStatus())) {
-                            resultTasks.add(task);
-                            check=true;
+                        if (taskId.equals(task.getTaskId())) {
+                            task.setStatus(newStatus);
+                            check = true;
+                            break;
                         }
                     }
                 }
             }
-            if(!check)
-            {
-                response.setStatus(400);
-                response.getWriter().write("Wrong projectId");
-                return ;
+
+            if (!check) {
+                response.setStatus(404);
+                response.getWriter().write("Task not found");
+                return;
             }
 
-            Gson gson = new Gson();
+
+            DataSaver.saveToFile();
+
             response.setStatus(200);
-            response.setContentType("application/json");
-            response.getWriter().write(gson.toJson(resultTasks));
+            response.getWriter().write("Status updated");
 
         } catch (Exception e) {
             response.setStatus(500);
-            response.getWriter().write("Server error: " + e.getMessage());
+            response.getWriter().write(e.getMessage());
         }
     }
 }
-
